@@ -4,6 +4,13 @@
 #include "LapisServo.h"
 
 #define _DEBUG
+#define SERIALCOM
+
+#ifdef SERIALCOM
+#include "SerialCom.h"
+#else
+#include "WifiCom.h"
+#endif
 
 
 // called this way, it uses the default address 0x40
@@ -14,9 +21,10 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define SERVOMIN  143 // this is the 'minimum' pulse length count (out of 4096) - 1msec/20msec = 4096/20
 #define SERVOMAX  491 // this is the 'maximum' pulse length count (out of 4096) - 2/20 = 4096/10
 
-#define QTD_SERVO 3
+#define QTD_SERVO 3 // Mudar dependendo da quantidade de servo
 
 
+SerialCom com = SerialCom();
 
 // variaveis para comunicação serial
 String inputString = "";
@@ -38,7 +46,7 @@ void setup() {
   Serial.begin(9600);
   Serial.println("Inicializando Programa...");
   Serial.println("DETEB 2018");
-  Serial.println("LAPIS PEB/COPPE/UFRJ");
+  Serial.println("LAPIS PEB / COPPE / UFRJ");
 
   pwm.begin();
 
@@ -56,6 +64,8 @@ void setup() {
 void loop() {
   unsigned long dt = millis();
 
+  lerSerial();
+
   // Caso a string tenha sido lida completamente, limpa-la e processa-la
   if (stringComplete) {
     stringComplete = false;
@@ -72,13 +82,13 @@ void loop() {
       listaServos[i].atualizar();
     }
 #ifdef _DEBUG
-    Serial.println("---------");
+    Serial.println("----------");
 #endif
   }
 }
 
 /* Processa a string recebia, a principio uma sequencia de
-   QTD_SERVOS caracteres: D; E; 0.
+  QTD_SERVOS caracteres: D; E; 0.
 */
 bool processString(String str) {
   int tamanho = str.length();
@@ -112,19 +122,12 @@ void setAnguloInicial(float angulo) {
 }
 
 
-/*
-  SerialEvent occurs whenever a new data comes in the hardware serial RX. This
-  routine is run between each time loop() runs, so using delay inside loop can
-  delay response. Multiple bytes of data may be available.
-*/
-void serialEvent() {
-  while (Serial.available()) {
-    // get the new byte:
-    char inChar = (char)Serial.read();
-    // add it to the inputString:
+void lerSerial() {
+  while (com.available()) {
+
+    char inChar = (char)com.read();
     inputString += inChar;
-    // if the incoming character is a newline, set a flag so the main loop can
-    // do something about it:
+
     if (inChar == '\n') {
       stringComplete = true;
     }
