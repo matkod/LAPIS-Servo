@@ -18,8 +18,8 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 
 // calcular para cada servo o minimo e maximo
-#define SERVOMIN  143 // this is the 'minimum' pulse length count (out of 4096) - 1msec/20msec = 4096/20
-#define SERVOMAX  491 // this is the 'maximum' pulse length count (out of 4096) - 2/20 = 4096/10
+#define SERVOMIN  143 // this is the 'minimum' pulse length count (out of 4096) - 1msec/20msec => 4096/20
+#define SERVOMAX  491 // this is the 'maximum' pulse length count (out of 4096) - 2/20 => 4096/10
 
 #define QTD_SERVO 3 // Mudar dependendo da quantidade de servo
 
@@ -32,13 +32,14 @@ bool stringComplete = false;
 
 // variaveis de temporização
 unsigned long ultimaAtualizacao = 0;
-const long intervalo = 1000;            // em ms
+const long intervalo = 100;            // em ms
 
 // Criar cada servo individualmente
 LapisServo listaServos[QTD_SERVO] = {
-  LapisServo(pwm, 1, SERVOMIN, SERVOMAX, -60, 60),
-  LapisServo(pwm, 2, SERVOMIN, SERVOMAX, -60, 60),
-  LapisServo(pwm, 3, SERVOMIN, SERVOMAX, -60, 60),
+  LapisServo(pwm, 0, 176, 359, 0, 120, 1), //garra
+  //LapisServo(pwm, 0, 126, 495, 0, 120, 1), //base
+  LapisServo(pwm, 1, 126, 495, 0, 120, 5),
+  LapisServo(pwm, 2, 126, 495, 0, 120, 5),
 };
 
 
@@ -82,7 +83,7 @@ void loop() {
       listaServos[i].atualizar();
     }
 #ifdef _DEBUG
-    Serial.println("----------");
+    //Serial.println("----------");
 #endif
   }
 }
@@ -95,21 +96,33 @@ bool processString(String str) {
 
 #ifdef _DEBUG
   Serial.print("String recebida: ");
-  Serial.println(str);
+  Serial.print(str);
 
-  Serial.print("Tamanho da string recebida: ");
-  Serial.println(tamanho);
+  //Serial.print("Tamanho da string recebida: ");
+  //Serial.println(tamanho);
 #endif
 
-  if (tamanho - 1 != QTD_SERVO) {
+  if (tamanho == 2) {
+    if (str[0] == 'R') {
+      Serial.println("RESET");
+      setAnguloInicial(0);
+      return true;
+    }
+  }
+  else if (tamanho - 1 != QTD_SERVO*2) {
     Serial.println("Tamanho da string recebida diferente do esperado.");
     return false;
   }
 
-  for (int i = 0; i < QTD_SERVO; ++i) {
-    char c = str[i];
+  for (int i = 0; i < QTD_SERVO*2; i++) {
+    char c1 = str[(i*2)];
+    char c2 = str[(i*2)+1];
 
-    listaServos[i].mover(c);
+    if (c1 == '0') {
+      listaServos[i].mover(c2);
+    } else {
+      listaServos[i].mover(c1);
+    }
   }
 
   return true;

@@ -8,8 +8,8 @@
 class LapisServo
 {
   public:
-    LapisServo(Adafruit_PWMServoDriver pwm, int id, int min, int max, float anguloMin=0, float anguloMax=120);
-    void setAngulo(float angulo);
+    LapisServo(Adafruit_PWMServoDriver pwm, int id, int min, int max, float anguloMin=0, float anguloMax=120, float incremento=1);
+    void setAngulo(float angulo, bool reset=false);
     void mover(char c);
     void atualizar();
   private:

@@ -4,13 +4,13 @@
 
 
 
-LapisServo::LapisServo(Adafruit_PWMServoDriver pwm, int id, int min, int max, float anguloMin, float anguloMax) {
+LapisServo::LapisServo(Adafruit_PWMServoDriver pwm, int id, int min, int max, float anguloMin, float anguloMax, float incremento) {
   _pwm = pwm;
   _id = id;
   _min = min;
   _max = max;
   _estado = 'P';
-  _incremento = 1;
+  _incremento = incremento;
   _angulo = 0;
   _anguloMin = anguloMin;
   _anguloMax = anguloMax;
@@ -27,23 +27,29 @@ void LapisServo::atualizar() {
   }
 }
 
-void LapisServo::setAngulo(float angulo) {
+void LapisServo::setAngulo(float angulo, bool reset) {
   Serial.print("Servo: ");
   Serial.print(_id);
 
-  if (angulo > _anguloMin && angulo < _anguloMax)
-  {
-    Serial.print("  -> ");
-    Serial.println(angulo);
+  if (angulo < _anguloMin) {
+    angulo = _anguloMin;
+    reset = true;
+  } else if (angulo > _anguloMax) {
+    angulo = _anguloMax;
+    reset = true;
+  }
 
-    _angulo = angulo;
+  Serial.print("  -> ");
+  Serial.println(angulo);
 
-    int pulso = map(angulo, _anguloMin, _anguloMax, _min, _max);
+  _angulo = angulo;
 
-    _pwm.setPWM(_id, 0, pulso);
-  } else {
-    Serial.print("  -> ");
-    Serial.println(_angulo);
+  int pulso = map(_angulo, _anguloMin, _anguloMax, _min, _max);
+
+  _pwm.setPWM(_id, 0, pulso);
+
+  if (reset) {
+    _estado = 'P';
   }
 }
 
