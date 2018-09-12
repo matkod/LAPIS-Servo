@@ -38,10 +38,12 @@ const long intervalo = 100;            // em ms
 // Criar cada servo individualmente
 LapisServo listaServos[QTD_SERVO] = {
   // (PWM, pulse_min, pulse_max, inicial, min, max, passo)
-  LapisServo(pwm, 0, 176, 359, 0, 0, 120, 1), //garra
-  //LapisServo(pwm, 0, 126, 495, 0, 0, 120, 1), //base
-  LapisServo(pwm, 1, 126, 495, 0, 0, 120, 5),
-  LapisServo(pwm, 2, 126, 495, 0, 0, 120, 5),
+  LapisServo(pwm, 0, 176, 359, 0, 0, 120, 1), // garra
+  LapisServo(pwm, 1, 126, 495, 0, 0, 120, 5), // pulso
+  LapisServo(pwm, 2, 126, 495, 0, 0, 120, 5), //
+  //LapisServo(pwm, 3, 126, 495, 0, 0, 120, 5), // 
+  //LapisServo(pwm, 4, 126, 495, 0, 0, 120, 5), // 
+  //LapisServo(pwm, 5, 126, 495, 0, 0, 120, 5), // base
 };
 
 
