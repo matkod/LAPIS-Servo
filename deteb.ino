@@ -21,6 +21,7 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define SERVOMIN  143 // this is the 'minimum' pulse length count (out of 4096) - 1msec/20msec => 4096/20
 #define SERVOMAX  491 // this is the 'maximum' pulse length count (out of 4096) - 2/20 => 4096/10
 
+
 #define QTD_SERVO 3 // Mudar dependendo da quantidade de servo
 
 
@@ -36,10 +37,11 @@ const long intervalo = 100;            // em ms
 
 // Criar cada servo individualmente
 LapisServo listaServos[QTD_SERVO] = {
-  LapisServo(pwm, 0, 176, 359, 0, 120, 1), //garra
-  //LapisServo(pwm, 0, 126, 495, 0, 120, 1), //base
-  LapisServo(pwm, 1, 126, 495, 0, 120, 5),
-  LapisServo(pwm, 2, 126, 495, 0, 120, 5),
+  // (PWM, pulse_min, pulse_max, inicial, min, max, passo)
+  LapisServo(pwm, 0, 176, 359, 0, 0, 120, 1), //garra
+  //LapisServo(pwm, 0, 126, 495, 0, 0, 120, 1), //base
+  LapisServo(pwm, 1, 126, 495, 0, 0, 120, 5),
+  LapisServo(pwm, 2, 126, 495, 0, 0, 120, 5),
 };
 
 
@@ -57,7 +59,7 @@ void setup() {
 
   delay(10);
 
-  setAnguloInicial(0);
+  reiniciarServos();
 
   Serial.println("Inicialização concluida");
 }
@@ -97,40 +99,36 @@ bool processString(String str) {
 #ifdef _DEBUG
   Serial.print("String recebida: ");
   Serial.print(str);
-
-  //Serial.print("Tamanho da string recebida: ");
-  //Serial.println(tamanho);
 #endif
 
-  if (tamanho == 2) {
+  if (tamanho == 2) { // RESET
     if (str[0] == 'R') {
-      Serial.println("RESET");
-      setAnguloInicial(0);
+      reiniciarServos();
       return true;
     }
   }
-  else if (tamanho - 1 != QTD_SERVO*2) {
+  else if (tamanho - 1 == QTD_SERVO * 2) { // Comando
+    for (int i = 0; i < QTD_SERVO * 2; i++) {
+      char c1 = str[(i * 2)];
+      char c2 = str[(i * 2) + 1];
+
+      if (c1 == '0') {
+        listaServos[i].mover(c2);
+      } else {
+        listaServos[i].mover(c1);
+      }
+    }
+
+    return true;
+  } else {
     Serial.println("Tamanho da string recebida diferente do esperado.");
     return false;
   }
-
-  for (int i = 0; i < QTD_SERVO*2; i++) {
-    char c1 = str[(i*2)];
-    char c2 = str[(i*2)+1];
-
-    if (c1 == '0') {
-      listaServos[i].mover(c2);
-    } else {
-      listaServos[i].mover(c1);
-    }
-  }
-
-  return true;
 }
 
-void setAnguloInicial(float angulo) {
+void reiniciarServos() {
   for (int i = 0; i < QTD_SERVO; ++i) {
-    listaServos[i].setAngulo(angulo);
+    listaServos[i].reiniciar();
   }
 }
 

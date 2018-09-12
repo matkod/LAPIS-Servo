@@ -4,7 +4,7 @@
 
 
 
-LapisServo::LapisServo(Adafruit_PWMServoDriver pwm, int id, int min, int max, float anguloMin, float anguloMax, float incremento) {
+LapisServo::LapisServo(Adafruit_PWMServoDriver pwm, int id, int min, int max, float posInicial, float anguloMin, float anguloMax, float incremento) {
   _pwm = pwm;
   _id = id;
   _min = min;
@@ -14,6 +14,11 @@ LapisServo::LapisServo(Adafruit_PWMServoDriver pwm, int id, int min, int max, fl
   _angulo = 0;
   _anguloMin = anguloMin;
   _anguloMax = anguloMax;
+  _posInicial = posInicial;
+}
+
+void LapisServo::reiniciar() {
+  setAngulo(_posInicial, true);
 }
 
 void LapisServo::atualizar() {
@@ -23,7 +28,6 @@ void LapisServo::atualizar() {
     setAngulo(_angulo + _incremento);
   } else if (_estado == 'P') {
     //n deve precisar fazer nada aqui....
-    //setAngulo(_angulo);
   }
 }
 
