@@ -4,13 +4,7 @@
 #include "LapisServo.h"
 
 #define _DEBUG
-#define SERIALCOM
 
-#ifdef SERIALCOM
-#include "SerialCom.h"
-#else
-#include "WifiCom.h"
-#endif
 
 
 // called this way, it uses the default address 0x40
@@ -24,9 +18,6 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 #define QTD_SERVO 3 // Mudar dependendo da quantidade de servo
 
-
-SerialCom com = SerialCom();
-
 // variaveis para comunicação serial
 String inputString = "";
 bool stringComplete = false;
@@ -38,11 +29,11 @@ const long intervalo = 100;            // em ms
 // Criar cada servo individualmente
 LapisServo listaServos[QTD_SERVO] = {
   // (PWM, pulse_min, pulse_max, inicial, min, max, passo)
-  LapisServo(pwm, 0, 176, 359, 0, 0, 120, 1), // garra
-  LapisServo(pwm, 1, 126, 495, 0, 0, 120, 5), // pulso
-  LapisServo(pwm, 2, 126, 495, 0, 0, 120, 5), //
-  //LapisServo(pwm, 3, 126, 495, 0, 0, 120, 5), // 
-  //LapisServo(pwm, 4, 126, 495, 0, 0, 120, 5), // 
+  //LapisServo(pwm, 0, 176, 359, 0, 0, 120, 1), // garra
+  //LapisServo(pwm, 1, 126, 495, 0, 0, 120, 5), // pulso
+  LapisServo(pwm, 2, 126, 495, 83, 0, 120, .5), //
+  LapisServo(pwm, 3, 126, 495, 50, 0, 120, .5), // 
+  LapisServo(pwm, 4, 126, 495, 87, 0, 120, .5), // 
   //LapisServo(pwm, 5, 126, 495, 0, 0, 120, 5), // base
 };
 
@@ -136,9 +127,9 @@ void reiniciarServos() {
 
 
 void lerSerial() {
-  while (com.available()) {
+  while (Serial.available()) {
 
-    char inChar = (char)com.read();
+    char inChar = (char)Serial.read();
     inputString += inChar;
 
     if (inChar == '\n') {
