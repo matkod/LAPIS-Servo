@@ -16,7 +16,7 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define SERVOMAX  491 // this is the 'maximum' pulse length count (out of 4096) - 2/20 => 4096/10
 
 
-#define QTD_SERVO 3 // Mudar dependendo da quantidade de servo
+#define QTD_SERVO 6 // Mudar dependendo da quantidade de servo
 
 // variaveis para comunicação serial
 String inputString = "";
@@ -26,15 +26,20 @@ bool stringComplete = false;
 unsigned long ultimaAtualizacao = 0;
 const long intervalo = 100;            // em ms
 
+char ultimo_estado = '0';
+char penultimo_estado = '0';
+
 // Criar cada servo individualmente
 LapisServo listaServos[QTD_SERVO] = {
   // (PWM, pulse_min, pulse_max, inicial, min, max, passo)
-  //LapisServo(pwm, 0, 176, 359, 0, 0, 120, 1), // garra
-  //LapisServo(pwm, 1, 126, 495, 0, 0, 120, 5), // pulso
-  LapisServo(pwm, 2, 126, 495, 83, 0, 120, .5), //
-  LapisServo(pwm, 3, 126, 495, 50, 0, 120, .5), // 
-  LapisServo(pwm, 4, 126, 495, 87, 0, 120, .5), // 
-  //LapisServo(pwm, 5, 126, 495, 0, 0, 120, 5), // base
+  //LapisServo(pwm, 0, 126, 495, 70, 0, 120, 1), // outro da base fixo
+  LapisServo(pwm, 0, 180, 290, 0, 0, 120, 2), // garra
+  LapisServo(pwm, 1, 126, 495, 62, 0, 120, 1), // pulso
+  LapisServo(pwm, 2, 150, 490, 83, 0, 120, 1), //
+  LapisServo(pwm, 3, 126, 495, 77, 0, 120, 1), //
+  LapisServo(pwm, 4, 126, 495, 56, 0, 120, 1), //
+  //LapisServo(pwm, 5, 126, 495, 0, 0, 120, 1), // base
+  LapisServo(pwm, 5, 126, 495, 0, 0, 120, 1)
 };
 
 
@@ -104,7 +109,21 @@ bool processString(String str) {
     for (int i = 0; i < QTD_SERVO * 2; i++) {
       char c1 = str[(i * 2)];
       char c2 = str[(i * 2) + 1];
-
+      if (i == 0) {
+        if (c1 != '0') {
+          if (ultimo_estado == 'D')
+            if (penultimo_estado == 'D')
+              ultimo_estado = 'E';
+            else
+              ultimo_estado = 'D';
+          else
+            if (penultimo_estado == 'D')
+              ultimo_estado = 'E';
+            else
+              ultimo_estado = 'D';
+          c1 = ultimo_estado;
+        }
+      }
       if (c1 == '0') {
         listaServos[i].mover(c2);
       } else {
